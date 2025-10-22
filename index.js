@@ -18,12 +18,53 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
+app.use("/api/:date?",(req,res,next)=>{
+  let {date} = req.params
+  let dateFormat = new Date(date)
+  let dateObject = new Date(parseInt(date))
+  let dateUnix = dateFormat.getTime()
+  let dateUtc = dateFormat.toUTCString()
+
+
+  if ( !date ) {
+    let currentDate = new Date()
+    let currentUnix = currentDate.getTime()
+    let currentUtc = currentDate.toUTCString()
+    return res.json({unix : currentUnix, date : currentUtc})
+  }
+
+//Number(date).length !== 10 || Number(date).length !== 13
+if (/^\d+$/.test(date)){
+      if (date.length === 10 || date.length === 13){
+      return next()}
+      else {
+        return res.json({error : "Invalide Date"})
+      }}
+
+if (!isNaN(dateUnix)){
+        console.log(dateUnix)
+          return next()
+        }
+
+  })
+
 
 // your first API endpoint... 
-app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
-});
-
+app.get("/api/:date?", (req, res)=> {
+  let {date} = req.params;
+  let dateFormat = new Date(date);
+  let dateUnix = dateFormat.getTime();
+  let dateUtc = dateFormat.toUTCString();
+  if (!isNaN(Number(date)) && date.trim() !== "" && date.length === 10 ||
+date.length === 13
+) {
+  let dateObject = new Date(parseInt(date));
+  let dateUtc = dateObject.toUTCString();
+  return res.json({ unix: Number(date), utc: dateUtc});
+}
+res.json({ unix: dateUnix, utc: dateUtc});
+  
+})
 
 
 // Listen on port set in environment variable or default to 3000
