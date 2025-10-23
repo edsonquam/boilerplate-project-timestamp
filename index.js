@@ -30,7 +30,7 @@ app.use("/api/:date?",(req,res,next)=>{
     let currentDate = new Date()
     let currentUnix = currentDate.getTime()
     let currentUtc = currentDate.toUTCString()
-    return res.json({unix : currentUnix, date : currentUtc})
+    return res.json({unix : currentUnix, utc : currentUtc})
   }
 
 //Number(date).length !== 10 || Number(date).length !== 13
