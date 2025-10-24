@@ -18,53 +18,39 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
-app.use("/api/:date?",(req,res,next)=>{
-  let {date} = req.params
-  let dateFormat = new Date(date)
-  let dateObject = new Date(parseInt(date))
-  let dateUnix = dateFormat.getTime()
-  let dateUtc = dateFormat.toUTCString()
-
-
-  if ( !date ) {
-    let currentDate = new Date()
-    let currentUnix = currentDate.getTime()
-    let currentUtc = currentDate.toUTCString()
-    return res.json({unix : currentUnix, utc : currentUtc})
-  }
-
-//Number(date).length !== 10 || Number(date).length !== 13
-if (/^\d+$/.test(date)){
-      if (date.length === 10 || date.length === 13){
-      return next()}
-      else {
-        return res.json({error : "Invalide Date"})
-      }}
-
-if (!isNaN(dateUnix)){
-        console.log(dateUnix)
-          return next()
-        }
-
-  })
-
-
-// your first API endpoint... 
-app.get("/api/:date?", (req, res)=> {
-  let {date} = req.params;
-  let dateFormat = new Date(date);
-  let dateUnix = dateFormat.getTime();
-  let dateUtc = dateFormat.toUTCString();
-  if (!isNaN(Number(date)) && date.trim() !== "" && date.length === 10 ||
-date.length === 13
-) {
-  let dateObject = new Date(parseInt(date));
-  let dateUtc = dateObject.toUTCString();
-  return res.json({ unix: Number(date), utc: dateUtc});
-}
-res.json({ unix: dateUnix, utc: dateUtc});
+// Single endpoint - NO MIDDLEWARE needed
+app.get("/api/:date?", function (req, res) {
+  let dateString = req.params.date;
   
-})
+  // Handle empty parameter (Requirements 7 & 8)
+  if (!dateString) {
+    const current = new Date();
+    return res.json({
+      unix: current.getTime(),    // Requirement 7
+      utc: current.toUTCString()  // Requirement 8
+    });
+  }
+  
+  let date;
+  
+  // Check if it's a Unix timestamp (all digits)
+  if (/^\d+$/.test(dateString)) {
+    date = new Date(parseInt(dateString));
+  } else {
+    date = new Date(dateString);
+  }
+  
+  // Check if date is invalid (Requirement 6)
+  if (isNaN(date.getTime())) {
+    return res.json({ error: "Invalid Date" });  // Requirement 6
+  }
+  
+  // Valid date response
+  res.json({
+    unix: date.getTime(),
+    utc: date.toUTCString()
+  });
+});
 
 
 // Listen on port set in environment variable or default to 3000
